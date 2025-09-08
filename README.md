@@ -10,8 +10,8 @@ cd chart
 helm upgrade --install 3fs ./ --namespace 3fs --create-namespace  
 ```
 默认模式是使用dir，如果有硬盘(建议使用NVME硬盘)，可以指定StorageType: "disk"，会根据DiskPerNode: n参数对前n个硬盘(系统盘除外)进行格式化。  
+K3FS支持rdma、rdma_rxe两种网络，默认模式下使用的是rdma_rxe，如果有支持RDMA的网卡也可以将设置为NetworkType: "rdma"  
 如果想查看详细部署过程可以使用helm的debug参数。  
-K3FS支持rdma、rdma_rxe两种网络，默认模式下使用的是rdma_rxe，如果有支持RDMA的网卡也可以将设置为NetworkType: "rdma"
 ```
 helm upgrade --install 3fs ./ --namespace 3fs --create-namespace --debug  
 ```
