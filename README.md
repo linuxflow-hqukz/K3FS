@@ -26,6 +26,32 @@ Flags:       fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat p
 cd chart/  
 helm upgrade --install 3fs ./ --namespace k3fs --create-namespace  
 ```
+等待部署完成
+```
+kubectl  get pod -n k3fs
+
+NAME                         READY   STATUS      RESTARTS   AGE
+admin-cli-6d955d4455-5nnpj   1/1     Running     0          118s
+fuse-client-1                1/1     Running     0          118s
+fuse-client-2                1/1     Running     0          118s
+fuse-client-3                1/1     Running     0          118s
+gen-chaintable-job-lb9r8     0/1     Completed   0          4m23s
+init-cluster-job-p5887       0/1     Completed   0          5m25s
+meta-101                     1/1     Running     0          5m25s
+meta-102                     1/1     Running     0          5m25s
+meta-103                     1/1     Running     0          5m25s
+mgmtd-1                      1/1     Running     0          5m25s
+mgmtd-2                      1/1     Running     0          5m24s
+mgmtd-3                      1/1     Running     0          5m24s
+monitor-7b44d645dc-vlqbz     1/1     Running     0          5m25s
+rdma-config-worker01-tmsvk   0/1     Completed   0          5m25s
+rdma-config-worker02-s9gn2   0/1     Completed   0          5m25s
+rdma-config-worker03-rb5ml   0/1     Completed   0          5m25s
+storage-10001                1/1     Running     0          5m25s
+storage-10002                1/1     Running     0          5m24s
+storage-10003                1/1     Running     0          5m24s
+user-add-job-c4g4k           0/1     Completed   0          5m24s
+```
 K3FS支持rdma、rdma_rxe两种网络，默认模式下使用的是rdma_rxe，如果有支持RDMA的网卡(建议使用迈洛思网卡)也可以将设置为NetworkType: "rdma"或者通过--set RdmaConfig.NetworkType=rdma进行传入；默认模式是使用dir，如果有硬盘(建议使用NVME硬盘)，可以指定StorageType: "disk"，或者通过--set Storage.StorageType=disk进行传入，会根据DiskPerNode: n参数对前n个硬盘(系统盘除外)进行格式化。  
 ```
 # 示例
