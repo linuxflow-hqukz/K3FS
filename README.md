@@ -20,6 +20,31 @@ helm upgrade --install 3fs ./ --namespace k3fs --create-namespace
 ```
 helm upgrade --install 3fs ./ --namespace 3fs --create-namespace --debug  
 ```
+# 查看集群
+查看服务端节点  
+```
+kubectl exec -n k3fs deployments/admin-cli  -- bash -c "/opt/3fs/bin/admin_cli -cfg /opt/3fs/etc/admin_cli.toml \"list-nodes\"" 
+
+Id     Type     Status               Hostname  Pid  Tags  LastHeartbeatTime    ConfigVersion  ReleaseVersion
+2      MGMTD    PRIMARY_MGMTD        worker03  17   []    N/A                  1(UPTODATE)    250228-dev-1-999999-ee9a5cee
+1      MGMTD    HEARTBEAT_CONNECTED  worker02  17   []    2025-09-09 16:04:41  1(UPTODATE)    250228-dev-1-999999-ee9a5cee
+3      MGMTD    HEARTBEAT_CONNECTED  worker01  17   []    2025-09-09 16:04:42  1(UPTODATE)    250228-dev-1-999999-ee9a5cee
+101    META     HEARTBEAT_CONNECTED  worker01  52   []    2025-09-09 16:04:42  3(UPTODATE)    250228-dev-1-999999-ee9a5cee
+102    META     HEARTBEAT_CONNECTED  worker03  58   []    2025-09-09 16:04:42  3(UPTODATE)    250228-dev-1-999999-ee9a5cee
+103    META     HEARTBEAT_CONNECTED  worker02  52   []    2025-09-09 16:04:43  3(UPTODATE)    250228-dev-1-999999-ee9a5cee
+10001  STORAGE  HEARTBEAT_CONNECTED  worker01  73   []    2025-09-09 16:04:50  3(UPTODATE)    250228-dev-1-999999-ee9a5cee
+10002  STORAGE  HEARTBEAT_CONNECTED  worker03  79   []    2025-09-09 16:04:49  3(UPTODATE)    250228-dev-1-999999-ee9a5cee
+10003  STORAGE  HEARTBEAT_CONNECTED  worker02  73   []    2025-09-09 16:04:50  3(UPTODATE)    250228-dev-1-999999-ee9a5cee
+```
+查看客户端节点  
+```
+kubectl exec -n k3fs deployments/admin-cli  -- bash -c "/opt/3fs/bin/admin_cli -cfg /opt/3fs/etc/admin_cli.toml \"list-clients\""
+
+ClientId                              ClientStart          SessionStart         LastExtend           ConfigVersion  Hostname  Description     Tags  ReleaseVersion
+b31b277e-b572-4abd-971d-57454b7b56f8  2025-09-09 15:55:53  2025-09-09 15:55:53  2025-09-09 16:05:13  3              worker01  fuse: worker01  []    250228-dev-1-999999-ee9a5cee
+5621829e-cdc1-4228-a00b-a8843cb204f8  2025-09-09 15:55:54  2025-09-09 15:55:54  2025-09-09 16:05:14  3              worker02  fuse: worker02  []    250228-dev-1-999999-ee9a5cee
+622ef68e-12dc-4e5c-806f-feb483749eec  2025-09-09 15:55:54  2025-09-09 15:55:54  2025-09-09 16:05:14  3              worker03  fuse: worker03  []    250228-dev-1-999999-ee9a5cee
+```
 # 自定义模式
 ```
 helm upgrade --install 3fs ./ -f custom-values.yaml --namespace 3fs --create-namespace
