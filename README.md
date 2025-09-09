@@ -5,7 +5,7 @@ K3FS(3FS in Kubernetes)项目灵感来源于[open3fs/m3fs](https://github.com/op
 Kubernetes集群：v1.30.5，需要给运行3fs集群的节点打上标签: kubectl label nodes  worker01 3fs-cluster=3fs01  
 部署好Clickhouse和FoundationDB   
 私有镜像仓库(可选)  
-需要节点支持avx512，基础镜像来自于open3fs，如果不支持avx512，请使用avx2镜像。
+需要节点支持avx512，基础镜像来自于open3fs，如果不支持avx512，请使用avx2基础镜像进行构建。
 ```
 root@master01:~# lscpu | grep avx512
 Flags:       fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ss syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon nopl xtopology tsc_reliable nonstop_tsc cpuid tsc_known_freq pni pclmulqdq ssse3 fma cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand hypervisor lahf_lm abm 3dnowprefetch ssbd ibrs ibpb stibp ibrs_enhanced fsgsbase tsc_adjust bmi1 avx2 smep bmi2 invpcid avx512f avx512dq rdseed adx smap clflushopt clwb avx512cd avx512bw avx512vl xsaveopt xsavec xgetbv1 xsaves arat pku ospke avx512_vnni md_clear flush_l1d arch_capabilities
@@ -13,10 +13,9 @@ Flags:       fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat p
 # 快速开始
 ```
 cd chart/  
-helm upgrade --install 3fs ./ --namespace 3fs --create-namespace  
+helm upgrade --install 3fs ./ --namespace k3fs --create-namespace  
 ```
-默认模式是使用dir，如果有硬盘(建议使用NVME硬盘)，可以指定StorageType: "disk"，会根据DiskPerNode: n参数对前n个硬盘(系统盘除外)进行格式化。  
-K3FS支持rdma、rdma_rxe两种网络，默认模式下使用的是rdma_rxe，如果有支持RDMA的网卡也可以将设置为NetworkType: "rdma"  
+默认模式是使用dir，如果有硬盘(建议使用NVME硬盘)，可以指定StorageType: "disk"，会根据DiskPerNode: n参数对前n个硬盘(系统盘除外)进行格式化；K3FS支持rdma、rdma_rxe两种网络，默认模式下使用的是rdma_rxe，如果有支持RDMA的网卡(建议使用迈洛思网卡)也可以将设置为NetworkType: "rdma"  
 如果想查看详细部署过程可以使用helm的debug参数。  
 ```
 helm upgrade --install 3fs ./ --namespace 3fs --create-namespace --debug  
@@ -87,4 +86,14 @@ helm upgrade --install 3fs ./ -f custom-values.yaml --namespace 3fs --create-nam
     - storage: "storage-10006"
       host: "3fs03"
       disk: '["1cadd45b-8e2a-4656-9b3a-d1302ecf0141"]'
+```
+# 卸载
+```
+helm uninstall -n k3fs 3fs
+```
+同时需要清空fdb数据库，使用fdbcli命令连接到fdb数据库  
+```
+writemode on
+clearrange "" \xFF
+getrange "" \xFF
 ```
