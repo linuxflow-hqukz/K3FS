@@ -5,6 +5,11 @@ K3FS(3FS in Kubernetes)项目灵感来源于[open3fs/m3fs](https://github.com/op
 Kubernetes集群：v1.30.5，需要给运行3fs集群的节点打上标签: kubectl label nodes  worker01 3fs-cluster=3fs01  
 部署好Clickhouse和FoundationDB   
 私有镜像仓库(可选)  
+需要节点支持avx512，基础镜像来自于open3fs，如果不支持avx512，请使用avx2镜像。
+```
+root@master01:~# lscpu | grep avx512
+Flags:       fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ss syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon nopl xtopology tsc_reliable nonstop_tsc cpuid tsc_known_freq pni pclmulqdq ssse3 fma cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand hypervisor lahf_lm abm 3dnowprefetch ssbd ibrs ibpb stibp ibrs_enhanced fsgsbase tsc_adjust bmi1 avx2 smep bmi2 invpcid avx512f avx512dq rdseed adx smap clflushopt clwb avx512cd avx512bw avx512vl xsaveopt xsavec xgetbv1 xsaves arat pku ospke avx512_vnni md_clear flush_l1d arch_capabilities
+```
 # 快速开始
 ```
 cd chart/  
