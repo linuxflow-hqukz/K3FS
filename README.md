@@ -2,11 +2,12 @@
 K3FS(3FS in Kubernetes)项目灵感来源于[open3fs/m3fs](https://github.com/open3fs/m3fs), 旨在于Kubernetes集群中快速部署3FS文件系统。
 # 环境要求
 操作系统：Ubuntu22.04  
-Kubernetes集群：v1.30.5  
+Kubernetes集群：v1.30.5，需要给运行3fs集群的节点打上标签: kubectl label nodes  worker01 3fs-cluster=3fs01  
+部署好Clickhouse和FoundationDB   
 私有镜像仓库(可选)  
 # 快速开始
 ```
-cd chart  
+cd chart/  
 helm upgrade --install 3fs ./ --namespace 3fs --create-namespace  
 ```
 默认模式是使用dir，如果有硬盘(建议使用NVME硬盘)，可以指定StorageType: "disk"，会根据DiskPerNode: n参数对前n个硬盘(系统盘除外)进行格式化。  
