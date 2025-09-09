@@ -2,9 +2,20 @@
 K3FS(3FS in Kubernetes)项目灵感来源于[open3fs/m3fs](https://github.com/open3fs/m3fs), 旨在于Kubernetes集群中快速部署3FS文件系统。
 # 环境要求
 操作系统：Ubuntu22.04  
-Kubernetes集群：v1.30.5，需要给运行3fs集群的节点打上标签: kubectl label nodes  worker01 3fs-cluster=3fs01  
-部署好Clickhouse和FoundationDB   
+部署好Clickhouse(22.8.5.29)和FoundationDB(7.3.63)   
 私有镜像仓库(可选)  
+Kubernetes(v1.30.5)集群，需要给所有运行3fs集群的节点打上标签
+```
+# 示例
+kubectl label nodes  worker01 3fs-cluster=3fs01
+
+kubectl  get node --show-labels 
+NAME       STATUS   ROLES           AGE   VERSION   LABELS
+master01   Ready    control-plane   19d   v1.30.5   beta.kubernetes.io/arch=amd64,beta.kubernetes.io/os=linux,kubernetes.io/arch=amd64,kubernetes.io/hostname=master01,kubernetes.io/os=linux,node-role.kubernetes.io/control-plane=,node.kubernetes.io/exclude-from-external-load-balancers=
+worker01   Ready    <none>          19d   v1.30.5   3fs-cluster=3fs01,beta.kubernetes.io/arch=amd64,beta.kubernetes.io/os=linux,kubernetes.io/arch=amd64,kubernetes.io/hostname=worker01,kubernetes.io/os=linux
+worker02   Ready    <none>          19d   v1.30.5   3fs-cluster=3fs02,beta.kubernetes.io/arch=amd64,beta.kubernetes.io/os=linux,kubernetes.io/arch=amd64,kubernetes.io/hostname=worker02,kubernetes.io/os=linux
+worker03   Ready    <none>          19d   v1.30.5   3fs-cluster=3fs03,beta.kubernetes.io/arch=amd64,beta.kubernetes.io/os=linux,kubernetes.io/arch=amd64,kubernetes.io/hostname=worker03,kubernetes.io/os=linux
+```
 需要节点支持avx512，基础镜像来自于open3fs，如果不支持avx512，请使用avx2基础镜像进行构建。
 ```
 root@master01:~# lscpu | grep avx512
@@ -15,7 +26,12 @@ Flags:       fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat p
 cd chart/  
 helm upgrade --install 3fs ./ --namespace k3fs --create-namespace  
 ```
-默认模式是使用dir，如果有硬盘(建议使用NVME硬盘)，可以指定StorageType: "disk"，会根据DiskPerNode: n参数对前n个硬盘(系统盘除外)进行格式化；K3FS支持rdma、rdma_rxe两种网络，默认模式下使用的是rdma_rxe，如果有支持RDMA的网卡(建议使用迈洛思网卡)也可以将设置为NetworkType: "rdma"  
+K3FS支持rdma、rdma_rxe两种网络，默认模式下使用的是rdma_rxe，如果有支持RDMA的网卡(建议使用迈洛思网卡)也可以将设置为NetworkType: "rdma"或者通过--set RdmaConfig.NetworkType=rdma进行传入；默认模式是使用dir，如果有硬盘(建议使用NVME硬盘)，可以指定StorageType: "disk"，或者通过--set Storage.StorageType=disk进行传入，会根据DiskPerNode: n参数对前n个硬盘(系统盘除外)进行格式化。  
+```
+# 示例
+helm upgrade --install 3fs ./ --set RdmaConfig.NetworkType=rdma --set Storage.StorageType=disk --namespace k3fs --create-namespace  --debug
+```
+
 如果想查看详细部署过程可以使用helm的debug参数。  
 ```
 helm upgrade --install 3fs ./ --namespace 3fs --create-namespace --debug  
