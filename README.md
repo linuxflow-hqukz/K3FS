@@ -100,7 +100,7 @@ helm upgrade --install 3fs ./ -f custom-values.yaml --namespace 3fs --create-nam
   # id : ls -l /dev/disk/by-id | grep nvme-eui  
   # uuid : ls -l /dev/disk/by-uuid  
   # partuuid : ls -l /dev/disk/by-partuuid
-#指定节点的硬盘：
+#指定节点上的硬盘：
   NodeAllocation:    # id
     - storage: "storage-10001"
       host: "3fs01"
