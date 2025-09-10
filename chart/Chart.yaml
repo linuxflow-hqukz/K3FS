@@ -1,0 +1,6 @@
+apiVersion: v2
+name: 3fs
+description: 3FS in Kubernetes, https://github.com/linuxflow-hqukz/K3FS
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
