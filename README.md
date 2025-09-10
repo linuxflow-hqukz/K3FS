@@ -22,6 +22,12 @@ root@master01:~# lscpu | grep avx512
 Flags:       fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ss syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon nopl xtopology tsc_reliable nonstop_tsc cpuid tsc_known_freq pni pclmulqdq ssse3 fma cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand hypervisor lahf_lm abm 3dnowprefetch ssbd ibrs ibpb stibp ibrs_enhanced fsgsbase tsc_adjust bmi1 avx2 smep bmi2 invpcid avx512f avx512dq rdseed adx smap clflushopt clwb avx512cd avx512bw avx512vl xsaveopt xsavec xgetbv1 xsaves arat pku ospke avx512_vnni md_clear flush_l1d arch_capabilities
 ```
 # 快速开始
+构建镜像及推送
+```
+docker build -t  192.168.2.199:28080/k3fs/k3fs:v0.1.0 .
+docker push  192.168.2.199:28080/k3fs/k3fs:v0.1.0 
+```
+开始部署
 ```
 cd chart/  
 helm upgrade --install 3fs ./ --namespace k3fs --create-namespace  
