@@ -62,6 +62,10 @@ helm upgrade --install 3fs ./ --set RdmaConfig.NetworkType=rdma --set Storage.St
 ```
 helm upgrade --install 3fs ./ --namespace 3fs --create-namespace --debug  
 ```
+首次安装如果拉取镜像时间较长可能会导致部署失败，helm默认部署时间是5分钟，可以设置--timeout参数以增加部署时间。
+```
+helm upgrade --install 3fs ./ --namespace 3fs --create-namespace --debug --timeout 10m
+```
 # 查看集群
 查看服务端节点  
 ```
