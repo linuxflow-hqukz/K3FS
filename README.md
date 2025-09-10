@@ -55,7 +55,7 @@ user-add-job-c4g4k           0/1     Completed   0          5m24s
 K3FS支持rdma、rdma_rxe两种网络，默认模式下使用的是rdma_rxe，如果有支持RDMA的网卡(建议使用迈洛思网卡)也可以将设置为NetworkType: "rdma"或者通过--set RdmaConfig.NetworkType=rdma进行传入；默认模式是使用dir，如果有硬盘(建议使用NVME硬盘)，可以指定StorageType: "disk"，或者通过--set Storage.StorageType=disk进行传入，会根据DiskPerNode: n参数对前n个硬盘(系统盘除外)进行格式化。  
 ```
 # 示例
-helm upgrade --install 3fs ./ --set RdmaConfig.NetworkType=rdma --set Storage.StorageType=disk --namespace k3fs --create-namespace  --debug
+helm upgrade --install 3fs ./ --set RdmaConfig.NetworkType=rdma --set RdmaConfig.NetworkCard=ens160 --set Storage.StorageType=disk --namespace k3fs --create-namespace  --debug
 ```
 
 如果想查看详细部署过程可以使用helm的debug参数。  
