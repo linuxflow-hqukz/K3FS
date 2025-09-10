@@ -1,0 +1,90 @@
+{{- /* 1. 定义标签键并验证是否存在 */ -}}
+{{- $labelKey := .Values.Common.NodeLabel -}}
+{{- if not $labelKey }}
+  {{- fail "ERROR: .Values.Common.NodeLabel 未定义，请在value.yaml中设置" -}}
+{{- end }}
+
+{{- /* 2. 查询节点 */ -}}
+{{- $AllNodes := lookup "v1" "Node" "" "" | default (dict "items" (list)) -}}
+{{- $TargetNodes := list -}}
+
+{{- /* 3. 筛选节点（变量定义移到循环内，但不强制移除行尾空白） */ -}}
+{{- range $node := $AllNodes.items }}
+  {{- $labels := $node.metadata.labels | default (dict) }} 
+  {{- if hasKey $labels $labelKey }}
+    {{- $TargetNodes = append $TargetNodes $node -}}
+  {{- end }}
+{{- end }}
+
+{{- /* 4. 生成Job（变量定义放在YAML文档外） */ -}}
+{{- if gt (len $TargetNodes) 0 }}
+{{- range $index, $node := $TargetNodes }}
+  {{- $labels := $node.metadata.labels | default (dict) }} 
+  {{- $NodeLabelValue := index $labels $labelKey | default "未设置" }}
+---
+kind: Job
+apiVersion: batch/v1
+metadata:
+  name: rdma-config-{{ $node.metadata.name }}
+  namespace: {{ $.Values.Common.namespace | default "k3fs"  }}
+  annotations:
+    {{- include "RdmaConfig.hook.annotations" . | nindent 4 }}
+spec:
+  backoffLimit: 3
+  # activeDeadlineSeconds: 60
+  ttlSecondsAfterFinished: 60000
+  template:
+    metadata:
+      labels:
+        {{ $.Values.Common.PodLabel | default "role" }}: {{ $.Values.RdmaConfig.PodLabelValue | default "rdma-config" }}
+    spec:
+      restartPolicy: Never
+      hostNetwork: true
+      serviceAccountName: {{ $.Values.Common.kube_sa }}
+      nodeSelector:
+        {{ $.Values.Common.NodeLabel }}: {{ $NodeLabelValue }}
+      initContainers:
+      - name: check-configmap
+        image: {{ $.Values.Common.kube_image }}
+        imagePullPolicy: {{ $.Values.Common.kube_imagePullPolicy | default "IfNotPresent" }}
+        securityContext: 
+          privileged: true
+          runAsUser: 0
+        command:
+        - "bash"
+        - "-c"
+        - |
+          /bin/bash /opt/3fs/shell/check.sh get_configmap_status
+          echo "RDMA config done on node {{ $node.metadata.name }}, label {{ $labelKey }}={{ $NodeLabelValue }}"
+        env:
+          {{- include "Common.env" $ | nindent 10 }}
+        envFrom:
+          {{- include "Common.envFrom" $ | nindent 10 }}
+        volumeMounts:
+          {{- include "3fs-shell.volumeMounts" $ | nindent 10 }}
+      containers:
+      - name: rdma-config
+        image: {{ $.Values.Common.image }}
+        imagePullPolicy: {{ $.Values.Common.imagePullPolicy | default "IfNotPresent" }}
+        securityContext: 
+          privileged: true
+          runAsUser: 0
+        command:
+        - "bash"
+        - "-c"
+        - |
+          /bin/bash /opt/3fs/shell/rdma-config.sh
+        env:
+          {{- include "Common.env" $ | nindent 10 }}
+        envFrom:
+          {{- include "Common.envFrom" $ | nindent 10 }}
+        volumeMounts:
+          {{- include "RdmaConfig.volumeMounts" $ | nindent 10 }}
+      volumes:
+        {{- include "RdmaConfig.volumes" $ | nindent 8 }}
+        {{- include "3fs-shell.volumes" $ | nindent 8 }}
+{{- end }}
+{{- else }}
+# 调试信息：未生成Job，原因：匹配的节点数为0
+{{- end }}
+    

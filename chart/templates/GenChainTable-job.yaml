@@ -1,0 +1,86 @@
+---
+kind: Job
+apiVersion: batch/v1
+metadata:
+  name: gen-chaintable-job
+  namespace: {{ .Values.Common.namespace | default "k3fs"  }}
+  annotations:
+    {{- include "CreateChainTable.hook.annotations" . | nindent 4 }}
+spec:
+  backoffLimit: 3
+  # activeDeadlineSeconds: 60
+  ttlSecondsAfterFinished: 60000
+  template:
+    metadata:
+      name: gen-chaintable
+    spec:
+      restartPolicy: Never
+      hostNetwork: true
+      serviceAccountName: {{ $.Values.Common.kube_sa}}
+      initContainers:
+      - name: check-configmap
+        image: {{ .Values.Common.kube_image }}
+        imagePullPolicy: {{ .Values.Common.kube_imagePullPolicy | default "IfNotPresent" }}
+        securityContext: 
+          privileged: true
+          runAsUser: 0
+        command:
+        - "bash"
+        - "-c"
+        - |
+          /bin/bash /opt/3fs/shell/check.sh get_configmap_status
+          /bin/bash /opt/3fs/shell/check.sh get_mgmtd_server
+          /bin/bash /opt/3fs/shell/check.sh get_remote_ip
+          /bin/bash /opt/3fs/shell/check.sh get_token
+        env:
+          {{- include "Common.env" . | nindent 10 }}
+        envFrom:
+          {{- include "Common.envFrom" . | nindent 10 }}
+        volumeMounts:
+          {{- include "3fs-shell.volumeMounts" . | nindent 10 }}
+      - name: check-3fs
+        image: {{ .Values.Common.image }}
+        imagePullPolicy: {{ .Values.Common.imagePullPolicy | default "IfNotPresent" }}
+        securityContext: 
+          privileged: true
+          runAsUser: 0
+        command:
+        - "bash"
+        - "-c"
+        - |
+          /bin/bash /opt/3fs/shell/start.sh 
+          /bin/bash /opt/3fs/shell/check.sh get_mgmtd_status
+          /bin/bash /opt/3fs/shell/check.sh get_meta_status
+          /bin/bash /opt/3fs/shell/check.sh get_storage_status
+        env:
+          {{- include "Common.env" . | nindent 10 }}
+        envFrom:
+          {{- include "Common.envFrom" . | nindent 10 }}
+        volumeMounts:
+          {{- include "3fs-shell.volumeMounts" . | nindent 10 }}
+          {{- include "AdminCli.volumeMounts" . | nindent 10 }}
+      containers:
+      - name: gen-chaintable
+        image: {{ .Values.Common.image }}
+        imagePullPolicy: {{ .Values.Common.imagePullPolicy | default "IfNotPresent" }}
+        securityContext: 
+          privileged: true
+          runAsUser: 0
+        command:
+        - "bash"
+        - "-c"
+        - |
+          /bin/bash /opt/3fs/shell/start.sh gen_chaintable
+        env:
+          {{- include "Common.env" . | nindent 10 }}
+        envFrom:
+          {{- include "Common.envFrom" . | nindent 10 }}
+        volumeMounts:
+          {{- include "3fs-shell.volumeMounts" . | nindent 10 }}
+          {{- include "AdminCli.volumeMounts" . | nindent 10 }}
+      volumes:
+        {{- include "3fs-shell.volumes" . | nindent 8 }}
+        {{- include "AdminCli.volumes" . | nindent 8 }}
+
+
+
