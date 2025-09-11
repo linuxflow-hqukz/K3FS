@@ -2,7 +2,11 @@
 K3FS(3FS in Kubernetes)项目灵感来源于[open3fs/m3fs](https://github.com/open3fs/m3fs), 旨在于Kubernetes集群中快速部署3FS文件系统。
 # 环境要求
 操作系统：Ubuntu22.04  
-部署好Clickhouse(22.8.5.29)和FoundationDB(7.3.63)   
+部署好Clickhouse(22.8.5.29)和FoundationDB(7.3.63) 
+```
+# 在Clickhouse中导入sql
+clickhouse-client --host=192.168.2.161 --user=default --password='Ck123@123' -n < 3fs-monitor.sql
+```
 私有镜像仓库(可选)  
 Kubernetes(v1.30.5)集群，需要给所有运行3fs集群的节点打上标签
 ```
