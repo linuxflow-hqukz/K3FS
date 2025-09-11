@@ -58,8 +58,10 @@ data:
             echo "NetworkType: ${NetworkType} , NetworkCard: ${NetworkCard} "
             if [[ "$NetworkType" == "rdma" ]]; then
                 Module=rdma_cm
+                rmmod rdma_rxe
             else
                 Module=rdma_rxe
+                rmmod rdma_cm
             fi
             get_rdma_module
             get_rdma_link
