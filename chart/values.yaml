@@ -2,7 +2,7 @@ Common:
   namespace: k3fs
   image: 192.168.2.199:28080/k3fs/k3fs:v0.1.0
   imagePullPolicy: IfNotPresent
-  kube_image: bitnami/kubectl:1.30.5
+  kube_image: 192.168.2.199:28080/bitnami/kubectl:1.30.5
   kube_imagePullPolicy: IfNotPresent
   kube_sa: k3fs
   replicas: 3
@@ -17,9 +17,9 @@ Cluster:
   ChainTableId: 1
   ChunkSize: 1048576
   # gen_chaintable
-  StripSize: 3    # 条带数量STRIPESIZE 必须小于 NODENUM * DISKPERNODE
-  ReplicationFactor: 3    # 副本数量
-  DiskPerNode: 2  # 每个storage pod下的硬盘数或者分区数
+  StripSize: 3
+  ReplicationFactor: 3
+  DiskPerNode: 2
   TargetIdPrefix: 1 
   ChainIdPrefix: 9
 
