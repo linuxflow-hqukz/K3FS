@@ -58,20 +58,20 @@ Monitor:
       memory: "512Mi"
 
 Mgmtd:
-  Port1: 8000
-  Port2: 9000
+  RdmaPort: 8000
+  TcpPort: 9000
   IdStart: 1
   PodLabelValue: "mgmtd"
 
 Meta:
-  Port1: 8001
-  Port2: 9001
+  RdmaPort: 8001
+  TcpPort: 9001
   IdStart: 101
   PodLabelValue: "meta"
 
 Storage:
-  Port1: 18001
-  Port2: 19001
+  RdmaPort: 18001
+  TcpPort: 19001
   IdStart: 10001
   DeployMode: "default"    # default、custom
   StorageType: "dir"    # 存储类型  disk 代表硬盘 , dir代表文件夹

@@ -29,7 +29,7 @@ data:
                 MgmtdNodeNumTmp=$(cat /tmp/mgmtd_info.txt | grep -v '^$' | wc -l)
                 if (( MgmtdNodeNumTmp == MgmtdNodeNum ));then
                     echo "MgmtdNodeNumTmp: $MgmtdNodeNumTmp, MgmtdNodeNum: $MgmtdNodeNum, Mgmtd is ready."
-                    sed -i "s/$/:${MgmtdPort1}/" /tmp/mgmtd_info.txt
+                    sed -i "s/$/:${MgmtdRdmaPort}/" /tmp/mgmtd_info.txt
                     MGMTD_SERVER_ADDRESSES=$(awk '{print "\"RDMA://" $1 "\""}' /tmp/mgmtd_info.txt | paste -sd, | awk '{print "[" $0 "]"}')
                     echo ${MGMTD_SERVER_ADDRESSES}
                     result=$(kubectl patch configmap -n ${NameSpace} ${ConfigMapName} -p "$(jq -n --arg addr "$MGMTD_SERVER_ADDRESSES" '{data: {MGMTD_SERVER_ADDRESSES: $addr}}')")

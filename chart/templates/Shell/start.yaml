@@ -34,23 +34,23 @@ data:
 
     start_init(){
         # 初始化集群
-        sed -i "s|listen_port = 8000|listen_port = ${MgmtdPort1}|g" /opt/3fs/etc/mgmtd_main.toml
-        sed -i "s|listen_port = 9000|listen_port = ${MgmtdPort2}|g" /opt/3fs/etc/mgmtd_main.toml
+        sed -i "s|listen_port = 8000|listen_port = ${MgmtdRdmaPort}|g" /opt/3fs/etc/mgmtd_main.toml
+        sed -i "s|listen_port = 9000|listen_port = ${MgmtdTcpPort}|g" /opt/3fs/etc/mgmtd_main.toml
         /opt/3fs/bin/admin_cli -cfg /opt/3fs/etc/admin_cli.toml "init-cluster --mgmtd /opt/3fs/etc/mgmtd_main.toml ${ChainTableId} ${ChunkSize} ${StripSize}" 
     }
 
     start_mgmtd(){
-        NodeId=$(echo $POD_NAME  |  awk -F '-' '{print $2}')
+        NodeId=$(echo $POD_NAME | awk -F '-' '{print $2}')
         sed -i "s|node_id = node_id|node_id = ${NodeId}|g" /opt/3fs/etc/mgmtd_main_app.toml
         # 启动
         /opt/3fs/bin/mgmtd_main --launcher_cfg /opt/3fs/etc/mgmtd_main_launcher.toml --app-cfg /opt/3fs/etc/mgmtd_main_app.toml
     }
 
     start_meta(){
-        NodeId=$(echo $POD_NAME  |  awk -F '-' '{print $2}')
+        NodeId=$(echo $POD_NAME | awk -F '-' '{print $2}')
         sed -i "s|node_id = node_id|node_id = ${NodeId}|g" /opt/3fs/etc/meta_main_app.toml
-        sed -i "s|listen_port = 8001|listen_port = ${MetaPort1}|g" /opt/3fs/etc/meta_main.toml
-        sed -i "s|listen_port = 9001|listen_port = ${MetaPort2}|g" /opt/3fs/etc/meta_main.toml
+        sed -i "s|listen_port = 8001|listen_port = ${MetaRdmaPort}|g" /opt/3fs/etc/meta_main.toml
+        sed -i "s|listen_port = 9001|listen_port = ${MetaTcpPort}|g" /opt/3fs/etc/meta_main.toml
         # 注册
         /opt/3fs/bin/admin_cli -cfg /opt/3fs/etc/admin_cli.toml --config.mgmtd_client.mgmtd_server_addresses "${MGMTD_SERVER_ADDRESSES}" "set-config --type META --file /opt/3fs/etc/meta_main.toml"
         # 启动
@@ -61,18 +61,18 @@ data:
         NodeId=$(echo $POD_NAME | awk -F '-' '{print $2}')
         sed -i "s|node_id = node_id|node_id = ${NodeId}|g" /opt/3fs/etc/storage_main_app.toml
         if [[ "$DeployMode" == "default" ]]; then
-            Port1=${StoragePort1}
-            Port2=${StoragePort2}
+            RdmaPort=${StorageRdmaPort}
+            TcpPort=${StorageTcpPort}
         elif [[ "$DeployMode" == "custom" ]]; then
-            Port1=$((NodeId+0))
-            Port2=$((NodeId+1000))
+            RdmaPort=$((NodeId+0))
+            TcpPort=$((NodeId+1000))
         else
             echo "DeployMode invalid value, Please use 'dir' or 'disk'. "
             exit 1
         fi
-        echo "port： ${Port1},${Port2}"
-        sed -i "s|listen_port = 18001|listen_port = ${Port1}|g" /opt/3fs/etc/storage_main.toml
-        sed -i "s|listen_port = 19001|listen_port = ${Port2}|g" /opt/3fs/etc/storage_main.toml
+        echo "port： ${RdmaPort},${TcpPort}"
+        sed -i "s|listen_port = 18001|listen_port = ${RdmaPort}|g" /opt/3fs/etc/storage_main.toml
+        sed -i "s|listen_port = 19001|listen_port = ${TcpPort}|g" /opt/3fs/etc/storage_main.toml
         # 替换target_paths
         ls -l /mnt/data*
         target_paths=$(printf "[%s]" "$(seq -f "\"/mnt/data%02g/3fs\"" $DiskPerNode | tr '\n' ',' | sed 's/,$//')")

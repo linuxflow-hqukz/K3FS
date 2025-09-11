@@ -46,19 +46,19 @@ data:
   MonitorPort: {{ .Values.Monitor.Port | default 10000 | quote }}
 
   # mgmtd
-  MgmtdPort1: {{ .Values.Mgmtd.Port1 | default 8000 | quote }}
-  MgmtdPort2: {{ .Values.Mgmtd.Port2 | default 9000 | quote }}
+  MgmtdRdmaPort: {{ .Values.Mgmtd.RdmaPort | default 8000 | quote }}
+  MgmtdTcpPort: {{ .Values.Mgmtd.TcpPort | default 9000 | quote }}
 
   # meta
-  MetaPort1: {{ .Values.Meta.Port1 | default 8001 | quote }}
-  MetaPort2: {{ .Values.Meta.Port2 | default 9001 | quote }}
+  MetaRdmaPort: {{ .Values.Meta.RdmaPort | default 8001 | quote }}
+  MetaTcpPort: {{ .Values.Meta.TcpPort | default 9001 | quote }}
 
   # storage
   DeployMode: {{ .Values.Storage.DeployMode | quote }}
   StorageType: {{ .Values.Storage.StorageType | quote }}
   {{- if eq .Values.Storage.DeployMode "default" }}
-  StoragePort1: {{ .Values.Storage.Port1 | default 18001 | quote }}
-  StoragePort2: {{ .Values.Storage.Port2 | default 19001 | quote }}
+  StorageRdmaPort: {{ .Values.Storage.RdmaPort | default 18001 | quote }}
+  StorageTcpPort: {{ .Values.Storage.TcpPort | default 19001 | quote }}
   {{- end }}
   {{- if eq .Values.Storage.DeployMode "custom" }}
   ClearDisk: {{ .Values.Storage.ClearDisk | quote }}
