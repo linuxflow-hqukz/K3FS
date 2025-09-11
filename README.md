@@ -97,6 +97,18 @@ b31b277e-b572-4abd-971d-57454b7b56f8  2025-09-09 15:55:53  2025-09-09 15:55:53  
 5621829e-cdc1-4228-a00b-a8843cb204f8  2025-09-09 15:55:54  2025-09-09 15:55:54  2025-09-09 16:05:14  3              worker02  fuse: worker02  []    250228-dev-1-999999-ee9a5cee
 622ef68e-12dc-4e5c-806f-feb483749eec  2025-09-09 15:55:54  2025-09-09 15:55:54  2025-09-09 16:05:14  3              worker03  fuse: worker03  []    250228-dev-1-999999-ee9a5cee
 ```
+客户端查看挂载
+```
+kubectl exec -n k3fs fuse-client-1  -- bash -c "df -h"
+
+Filesystem                 Size  Used Avail Use% Mounted on
+overlay                    249G   19G  217G   9% /
+tmpfs                       64M     0   64M   0% /dev
+/dev/mapper/vgubuntu-root  249G   19G  217G   9% /etc/hosts
+shm                         64M   12K   64M   1% /dev/shm
+tmpfs                       16G   12K   16G   1% /run/secrets/kubernetes.io/serviceaccount
+hf3fs.k3fs                 768G  5.6G  763G   1% /mnt/3fs
+```
 # 自定义模式
 ```
 helm upgrade --install 3fs ./ -f custom-values.yaml --namespace 3fs --create-namespace
